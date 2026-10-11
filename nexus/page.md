@@ -4,7 +4,7 @@ Tracks the mod's Nexus page details.
 
 - Mod name: Stats UI
 - Game domain: `survivallog` (add-mod page: https://www.nexusmods.com/survivallog/mods/add)
-- Mod id and URL: not created yet.
+- Mod id and URL: `27`, https://www.nexusmods.com/survivallog/mods/27. Published 2026-10-11.
 - Category: Miscellaneous. It is the only category the game offers on Nexus.
 - Version: `1.0.0`
 - File name under Manage Files: `Stats UI 1.0.0`, the zip `StatsUI-1.0.0.zip`, marked as the main file. It is the same zip as the GitHub Release asset.

@@ -1,11 +1,11 @@
 # Images
 
-Nexus page images, tracked in the repo. The background is 1300x372, the gallery images are 1920x1080. The mods-grid thumbnail is not a separate file: Nexus picks it from the uploaded gallery images. The images are made from 4K in-game screenshots.
+Nexus page images, tracked in the repo. The background is 1300x372, the gallery images are 1920x1080. The mods-grid thumbnail is not a separate file: Nexus picks it from the uploaded gallery images. The text is Noto Sans (Bold for the name and the titles, Light for the subtitles and the labels), white plus the gold `(251, 178, 11)`. The HUD parts were captured from the web UI on a transparent background at HUD Scale 1.3 on game 1.1.18385 and laid on black.
 
-The planned shots (the files are added when they are made):
-
-- Background (1300x372): the stat panel with a gain mark, a coming loss on a bar, and buff badges with time stripes.
-- Title card (1920x1080): the name "Stats UI" beside the stat panel.
-- Buff tooltip (1920x1080): the tooltip of a buff or debuff badge with the time left, the time bar, and the effect lines.
-- Stat bar tooltip (1920x1080): the tooltip of a stat bar with its multipliers and the coming loss lines.
-- Carried weight (1920x1080): the Inventory button with the weight number and the weight bar.
+- `sl-stats-ui-banner.jpg` - the mod page background image (1300x372): the stat bars with the 22 badges of the late game shot (time stripes, `x2.7` and `x1.5`, the coming loss on Stamina and Life), with no labels.
+- `sl-stats-ui-thumb.jpg` - title card (1920x1080): "Stats UI" with the game's four stat icons, beside the stat bars with the Well-Fed line on Satiety, the gain marks `x2.7` on Morale and `x1.5` on Stamina, and the coming loss on Stamina and Life. Pick this as the mods-grid thumbnail.
+- `sl-stats-ui-s01.jpg` - the HUD in late game (1920x1080): "Always Visible Details", the stat bars with 22 buff and debuff badges, and the labels "Time left on every buff and debuff" at the time stripes, "Gain multipliers - see when a stat grows faster" at `x2.7` and `x1.5`, and "Coming losses like a medicine's side effects" at the coming loss on Stamina (Adrenaline) and Life (Stimulants, Bleeding).
+- `sl-stats-ui-s02.jpg` - the tooltip of a stat bar (1920x1080): "Stat Tooltips" and "Every multiplier and coming loss", the Life tooltip (natural gain -50%, loss -30%, and the coming loss rows of Stimulants, Adrenaline, and Bleeding with their times) beside the stat bars. The badges under the tooltip were hidden for the capture.
+- `sl-stats-ui-s03.jpg` - the tooltip of a buff badge (1920x1080): "Buffs & Debuffs Tooltips" and "Exact values for every effect", the Adrenaline tooltip (Stamina loss -50%, Stamina at the end -100, Life at the end -20, the game's text) beside its badge.
+- `sl-stats-ui-s04.jpg` - in play (1920x1080): a full in-game screenshot at Home on day 13, with the Well-Fed tooltip open (Morale natural gain +20%, Stamina natural gain +20%, Interaction speed +10%, Satiety natural loss +30%, over the game's text "You work faster but consume more."), the gain mark `x1.1` on Morale, the time stripes, and the carried weight `0.4` on the Inventory button.
+- `sl-stats-ui-s05.jpg` - the carried weight (1920x1080): "Carried Weight" and "See how much more you can carry", three Inventory buttons captured at HUD Scale 1.5: 1.4 (white number, short green fill), 12.6 (amber, near the Encumbered line), and 15.0 (red, over the line).

@@ -1,1 +1,1 @@
-See more detail on your HUD: stat bonuses, detailed tooltips, buff timers, and carried weight.
+See more detail on your UI: stat bonuses, detailed tooltips, buff timers, and carried weight.

@@ -19,7 +19,7 @@ Stats UI only changes the display: stat gains and losses, buff and debuff effect
 
 Supports English and Chinese and follows your display language.
 
-Nexus page: not created yet.
+Nexus page: https://www.nexusmods.com/survivallog/mods/27
 
 ## Reading the numbers
 
