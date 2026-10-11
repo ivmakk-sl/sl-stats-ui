@@ -1,0 +1,414 @@
+/* The rules of the page script in the CoreUI1 frame: the stat panel and the bag button of the HUD. The script
+   sets each value known only at run time (a length, a place) as a --stui-* custom property that a rule reads. */
+
+/* The text of the stat bars and the buff badges: Segoe UI Regular, Microsoft YaHei for the characters that
+   Segoe UI does not have. No font-size, so the text scale of HUD Scale still applies. */
+.stui-text .progress-text,
+.stui-text .buff {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-weight: 400;
+}
+
+/* The bar text: a tight dark halo in place of the game's wide soft shadow, so the digits stay readable over the fill
+   and the hatched part of a coming loss. The badges have no shadow and get none. */
+.stui-text .progress-text {
+  text-shadow:
+    0 0 2px rgb(from var(--stui-black) r g b / 90%),
+    0 1px 1px rgb(from var(--stui-black) r g b / 80%);
+}
+
+/* The weight readout in the bag button: the number below the icon and the weight bar near the bottom edge, inset from
+   the round corners. */
+.stui-weight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --stui-tone: var(--stui-good);
+}
+
+.stui-weight.stui-near {
+  --stui-tone: var(--stui-near);
+}
+
+.stui-weight.stui-over {
+  --stui-tone: var(--stui-over);
+}
+
+.stui-weight-num {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  text-align: center;
+  font-size: 8.5px;
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--stui-muted);
+}
+
+.stui-weight.stui-near .stui-weight-num,
+.stui-weight.stui-over .stui-weight-num {
+  color: var(--stui-tone);
+}
+
+/* The weight bar: two segments split at the Encumbered line by a gap of 1px, in place of a line on the bar. */
+.stui-weight-bar {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 5px;
+  height: 2px;
+  display: flex;
+  gap: 1px;
+}
+
+/* The empty part of a segment: a faint light track on the grey button. */
+.stui-weight-seg {
+  position: relative;
+  flex: 1 1 auto;
+  overflow: hidden;
+  border-radius: 1px;
+  background: rgb(from var(--stui-white) r g b / 12%);
+}
+
+/* It may shrink by the gap, so a line at the weight limit does not push the bar past its inset. */
+.stui-weight-seg:first-child {
+  flex: 0 1 var(--stui-line, 80%);
+}
+
+.stui-weight-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--stui-fill, 0%);
+  background: var(--stui-tone);
+}
+
+/* The icon of the game in the bag button: smaller and higher, so the number and the bar have room under it. */
+.icon-sq:has(> .stui-weight) > .icon-svg {
+  width: 16px;
+  height: 16px;
+  transform: translateY(-6px);
+}
+
+/* The gain mark after the name of a stat bar, smaller than the name and regular as it. */
+.stui-mark {
+  font-size: 9.5px;
+  font-weight: 400;
+  margin-left: 0.15em;
+}
+
+/* The name and the gain mark on one text line: the game's box centers each part, which puts a smaller mark above the
+   baseline of the name. */
+.stui-text .attr-name {
+  align-items: baseline;
+}
+
+/* At the cap the mark shows as a gain; the stat tooltip names the cap. */
+.stui-mark.stui-good,
+.stui-mark.stui-cap {
+  color: var(--stui-mark-good);
+}
+
+.stui-mark.stui-bad {
+  color: var(--stui-mark-bad);
+}
+
+/* The time stripe at the bottom of a buff badge, inside its padding, out of the flow, so the badge keeps its size. */
+.stui-stripe {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: var(--stui-left, 100%);
+  border-radius: 0 0 0 2px;
+  background: var(--stui-stripe-good);
+  pointer-events: none;
+}
+
+.buff-neg > .stui-stripe {
+  background: var(--stui-stripe-bad);
+}
+
+.buff > .stui-stripe.stui-warn {
+  background: var(--stui-stripe-warn);
+}
+
+/* The threshold line on the Satiety bar at the start of Well-Fed. The text of the game draws over it. */
+.stui-threshold {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--stui-at, 0);
+  width: 0;
+  border-left: 1px solid rgb(from var(--stui-white) r g b / 30%);
+  pointer-events: none;
+}
+
+/* The coming loss: the part of the fill that the buffs and debuffs will take, darker with thin white lines (A2). The
+   text of the game draws over it, so the lines and the dark fill stay faint. */
+.stui-loss {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--stui-from, 0);
+  width: var(--stui-width, 0);
+  background:
+    repeating-linear-gradient(135deg, rgb(from var(--stui-white) r g b / 28%) 0 1px, transparent 1px 4px),
+    rgb(from var(--stui-black) r g b / 25%);
+  pointer-events: none;
+}
+
+/* While the extended tooltips are on, the game's own tooltips do not show. */
+.stui-tips .buff-tooltip,
+.stui-tips .status-tooltip {
+  display: none;
+}
+
+/* The tooltip of a buff badge (1 Plain), at the place of the game's tooltip: left of the badge. It grows upward from
+   the bottom of the badge, as the game's tooltip of the last row, so a badge low on the screen keeps it inside. The
+   text sizes are those of the game's tooltips; the text of the game is last, smaller and grey. */
+.stui-buff-tip {
+  position: absolute;
+  right: calc(100% + 9px);
+  bottom: -4px;
+  z-index: 30;
+  width: max-content;
+  max-width: 180px;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  background: var(--stui-tip-bg);
+  border: 1px solid var(--stui-tip-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgb(from var(--stui-black) r g b / 65%);
+  color: var(--stui-tip-text);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+
+/* The arrow to the badge: a square turned 45 degrees, with the border of the tooltip on its two outer sides. */
+.stui-buff-tip::before {
+  content: '';
+  position: absolute;
+  right: -5px;
+  bottom: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--stui-tip-bg);
+  border-top: 1px solid var(--stui-tip-border);
+  border-right: 1px solid var(--stui-tip-border);
+  transform: rotate(45deg);
+}
+
+.stui-tip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.stui-tip-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stui-tip-title.stui-good {
+  color: var(--stui-mark-good);
+}
+
+.stui-tip-title.stui-bad {
+  color: var(--stui-mark-bad);
+}
+
+.stui-tip-time {
+  color: var(--stui-tip-time);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stui-tip-bar {
+  position: relative;
+  height: 2px;
+  margin-bottom: 6px;
+  border-radius: 1px;
+  background: rgb(from var(--stui-white) r g b / 12%);
+}
+
+.stui-tip-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--stui-left, 100%);
+  border-radius: 1px;
+  background: rgb(from var(--stui-white) r g b / 70%);
+}
+
+/* The effect lines and the layer count: a grid of two columns, each value at the right edge of the narrow box. */
+.stui-tip-lines {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  column-gap: 14px;
+  row-gap: 2px;
+  padding: 5px 0;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+}
+
+.stui-tip-line,
+.stui-tip-layers {
+  display: contents;
+}
+
+/* Semibold: the title and the time stay the bold anchors of the tooltip. */
+.stui-tip-value {
+  color: var(--stui-white);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* The value of a penalty line: in the tone of a debuff, as the coming loss of the stat tooltip. */
+.stui-tip-value.stui-bad {
+  color: var(--stui-mark-bad);
+}
+
+/* The text of the game, the same in both tooltips: last, under a thin line, smaller and grey. */
+.stui-tip-desc {
+  margin-top: 1px;
+  padding-top: 5px;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+  color: var(--stui-tip-desc);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+/* The tooltip of a stat bar, at the place of the game's tooltip: left of the bar. It grows upward from the bottom of
+   the bar, so it stays inside the screen. */
+.stui-stat-tip {
+  position: absolute;
+  right: 108%;
+  bottom: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: 200px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: var(--stui-tip-bg);
+  border: 1px solid var(--stui-tip-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgb(from var(--stui-black) r g b / 65%);
+  color: var(--stui-tip-text);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+
+/* The arrow to the bar, as the arrow of the buff tooltip. */
+.stui-stat-tip::before {
+  content: '';
+  position: absolute;
+  right: -5px;
+  bottom: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--stui-tip-bg);
+  border-top: 1px solid var(--stui-tip-border);
+  border-right: 1px solid var(--stui-tip-border);
+  transform: rotate(45deg);
+}
+
+.stui-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.stui-stat-name {
+  color: var(--stui-stat-title);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.stui-stat-value {
+  color: var(--stui-tip-time);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* All the rows of the tooltip in one grid of two columns, each value at the right edge of the narrow box. */
+.stui-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  column-gap: 14px;
+  row-gap: 2px;
+  padding: 5px 0;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+}
+
+.stui-stat-row {
+  display: contents;
+}
+
+/* The line between two sections of the grid. */
+.stui-stat-sep {
+  grid-column: 1 / -1;
+  margin: 2px 0;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+}
+
+.stui-stat-section .stui-stat-label {
+  color: var(--stui-white);
+  font-weight: 600;
+}
+
+/* Semibold, as the values of the buff tooltip. */
+.stui-stat-num {
+  color: var(--stui-white);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.stui-stat-num.stui-cap {
+  color: var(--stui-mark-cap);
+}
+
+/* A value of the coming loss: a loss to plan for, in the tone of a debuff. */
+.stui-stat-num.stui-bad {
+  color: var(--stui-mark-bad);
+}
+
+.stui-stat-when {
+  margin-left: 5px;
+  color: var(--stui-tip-desc);
+}
+
+.stui-stat-note {
+  padding: 4px 0 1px;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+  color: var(--stui-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.stui-stat-desc {
+  margin-top: 1px;
+  padding-top: 5px;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+  color: var(--stui-tip-desc);
+  font-size: 10.5px;
+  line-height: 1.45;
+}

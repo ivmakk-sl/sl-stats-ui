@@ -1,0 +1,34 @@
+/* The colors and shared looks of Stats UI, once. The page script puts this file before page.css in the
+   CoreUI1 frame. A rule uses a token, never a raw color (stylelint checks it); an opacity stays at the rule,
+   through the relative color syntax: rgb(from var(--stui-white) r g b / 50%). */
+:root {
+  --stui-white: #fff;
+  --stui-black: #000;
+
+  /* The tones of the gain mark: above x1, below x1, at the cap of the game. */
+  --stui-mark-good: #8fdc9a;
+  --stui-mark-bad: #ff8a7a;
+  --stui-mark-cap: #ffb27a;
+
+  /* The time stripe of a buff, of a debuff, and near the end. */
+  --stui-stripe-good: #c8f7d0;
+  --stui-stripe-bad: #ffc2b8;
+  --stui-stripe-warn: #ffc04d;
+
+  /* The tones of the weight readout: below the Encumbered line, near it, above it. */
+  --stui-good: #9fd48a;
+  --stui-near: #ffc04d;
+  --stui-over: #ff6b5b;
+  --stui-muted: #cfcfcf;
+
+  /* The tooltips: the box and its border (white at 14% over the box), the text, the time left and the value, and
+     the text of the game. */
+  --stui-tip-bg: rgb(16 16 18);
+  --stui-tip-border: #3c3c3e;
+  --stui-tip-text: #ddd;
+  --stui-tip-time: #eee;
+  --stui-tip-desc: #a0a0a0;
+
+  /* The name of the stat in the stat tooltip: the gold of the game's own stat tooltip (.st-title). */
+  --stui-stat-title: #ffc107;
+}

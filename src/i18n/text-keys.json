@@ -1,0 +1,13 @@
+{
+  "satiety": "GameKey_1",
+  "morale": "GameKey_2",
+  "stamina": "GameKey_3",
+  "fitness": "GameKey_4",
+  "life": "GameKey_5",
+  "maxSatiety": "DataStatistics_10",
+  "maxMorale": "DataStatistics_11",
+  "maxStamina": "DataStatistics_12",
+  "maxFitness": "DataStatistics_13",
+  "maxLife": "DataStatistics_14",
+  "movementSpeed": "GameKey_21"
+}

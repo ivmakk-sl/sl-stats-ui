@@ -1,0 +1,38 @@
+Some buff and debuff descriptions leave out side effects or make their impact hard to understand. Stats UI shows their effects and values in detail, helping you understand their impact on your character and gameplay.
+
+[size=5]Main features[/size]
+[list]
+[*][b]Carried weight[/b]: weight in kg on the Inventory button, with a bar split where Encumbered starts.[/*]
+[*][b]Gain multipliers[/b]: a value such as [font=Courier New]x1.65[/font] beside Satiety, Morale, Stamina, or Life.[/*]
+[*][b]Coming loss[/b]: striped shading shows remaining losses from timed buffs and debuffs, over time and when they end. Includes stacks and loss modifiers; future gains are excluded.[/*]
+[*][b]Buff timers[/b]: stripes beneath timed buff and debuff badges show how much time remains.[/*]
+[*][b]Buff and debuff tooltips[/b]: effect values, remaining time, and layer counts alongside the game's description. Some effects have no detailed values.[/*]
+[*][b]Stat bar tooltips[/b]: stat values, modifiers to gains, natural recovery, losses and food effects, plus coming loss amounts and timing.[/*]
+[/list]
+
+Stats UI only changes the display: stat gains and losses, buff and debuff effects, weights, and timers stay the same as in vanilla. It adds nothing to your save and does not edit game files. You can remove it at any time.
+
+Supports English and Chinese and follows your display language.
+
+[size=5]Requirements[/size]
+[list]
+[*]Survival Log 1.1.18385 or later.[/*]
+[*][url=https://www.nexusmods.com/survivallog/mods/12]BepInEx for Survival Log[/url]. Install it first.[/*]
+[/list]
+
+[size=5]Installation[/size]
+[list=1]
+[*]Install [url=https://www.nexusmods.com/survivallog/mods/12]BepInEx[/url] [i](if no other mods were installed before, start the game once so BepInEx finishes setup, then quit)[/i].[/*]
+[*]Extract this mod's zip into the game folder (the folder with the game .exe). The DLL lands in BepInEx\plugins. Full path example:
+[code]C:\Program Files (x86)\Steam\steamapps\common\Survival Log\BepInEx\plugins\StatsUI.dll[/code]
+[/*]
+[/list]
+
+[size=5]Uninstall[/size]
+Delete [font=Courier New]StatsUI.dll[/font] from the [font=Courier New]BepInEx\plugins[/font] folder.
+
+[size=5]Configuration[/size]
+To change mod settings, edit [font=Courier New]BepInEx\config\com.ivmakk.survivallog.statsui.cfg[/font] while the game is closed (see [url=https://github.com/ivmakk-sl/sl-stats-ui/blob/main/CONFIG.md]CONFIG.md[/url] for every setting). Changes apply at the next game start.
+
+[size=5]Source and license[/size]
+Open source under GPL-3.0: [url=https://github.com/ivmakk-sl/sl-stats-ui]github.com/ivmakk-sl/sl-stats-ui[/url]

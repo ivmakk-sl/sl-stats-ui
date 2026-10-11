@@ -1,0 +1,12 @@
+{
+  "switches": {
+    "weightReadout": true,
+    "timeStripes": true,
+    "extendedTooltips": true,
+    "statTooltipGameText": true
+  },
+  "texts": {},
+  "stats": [],
+  "buffs": [],
+  "weight": null
+}

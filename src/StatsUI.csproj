@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Build settings and the common game references live in Directory.Build.props at the mod root.
+       This file names the plugin and adds the assemblies that only this mod uses. -->
+  <PropertyGroup>
+    <AssemblyName>StatsUI</AssemblyName>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <!-- The page script is built from src/Web/ by Vite (package.json at the mod root) into one file,
+       which the plugin embeds under one name. The build runs only when a page source changed. -->
+  <PropertyGroup>
+    <ModRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))</ModRoot>
+    <PageBundle>$(ModRoot)\obj\page\page.js</PageBundle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PageSource Include="Web\**\*.ts;Web\**\*.js;Web\**\*.css;Web\**\*.svg" />
+    <PageSource Include="$(ModRoot)\package.json;$(ModRoot)\package-lock.json;$(ModRoot)\vite.config.ts" />
+    <EmbeddedResource Include="$(PageBundle)" LogicalName="StatsUI.page.js" />
+    <!-- The i18n files of the mod texts, read by the i18n library copy. -->
+    <EmbeddedResource Include="i18n\*.json" LogicalName="StatsUI.i18n.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <Target Name="BuildPage" BeforeTargets="BeforeBuild" Inputs="@(PageSource)" Outputs="$(PageBundle)">
+    <Error Condition="!Exists('$(ModRoot)\node_modules')" Text="StatsUI: the npm packages are missing. Run npm ci in $(ModRoot) first." />
+    <Exec Command="npm run build" WorkingDirectory="$(ModRoot)" />
+  </Target>
+
+  <!-- The HUD work needs the web view: Vuplex for WebUILayer and its ExecuteJavaScript. -->
+  <ItemGroup>
+    <_Ref Include="$(BepInExInterop)\Vuplex.WebView.dll" />
+    <Reference Include="@(_Ref)">
+      <HintPath>%(FullPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
