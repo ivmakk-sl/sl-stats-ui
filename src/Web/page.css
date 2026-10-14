@@ -251,6 +251,14 @@
   background: rgb(from var(--stui-white) r g b / 70%);
 }
 
+/* The suppression line of a suppressed debuff: in the tone of a gain, as the game stops the effects of the debuff. */
+.stui-tip-suppressed {
+  padding: 5px 0;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+  color: var(--stui-mark-good);
+  font-weight: 600;
+}
+
 /* The effect lines and the layer count: a grid of two columns, each value at the right edge of the narrow box. */
 .stui-tip-lines {
   display: grid;

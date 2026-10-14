@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- The tooltip of a suppressed debuff (for example Bleeding while Analgesia is active) shows "Suppressed by Analgesia" in place of its effect values.
+
+### Fixed
+
+- A debuff that Analgesia suppresses no longer shows coming losses on the stat bars or in the stat tooltips: the game applies none of its effects while it is suppressed.
+- The mod texts follow a change of the game language in the settings again. Survival Log 1.1.18599 changed how the game switches its language.
+- With a community translation of the game (Settings > Language), the mod texts show in English, and Stats UI writes no warning to the log.
+
+### Removed
+
+- Support for game versions before 1.1.18599 (the 10/13 Update). Stats UI now needs Survival Log 1.1.18599 or later.
+
 ## [1.0.0] - 2026-10-11
 
 ### Added

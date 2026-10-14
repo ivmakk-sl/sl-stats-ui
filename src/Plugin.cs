@@ -49,7 +49,7 @@ namespace StatsUI
                 typeof(WeightOnAddExtraBurden),
                 typeof(StatsOnSyncAttr),
                 typeof(StatsOnRefreshLeadingRoleBuff),
-                typeof(TextsOnSwitchLanguage),
+                typeof(TextsOnApplyLanguageKey),
             };
             // Each patch target is attached on its own, so a target missing after a game update turns
             // off only its own part.

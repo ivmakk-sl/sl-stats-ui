@@ -32,6 +32,10 @@ namespace StatsUI
             // The tree of its Config_Effect row (ConfigName) and the number fields of that row by name, or null for no row.
             public string Tree;
             public IReadOnlyDictionary<string, double> Fields;
+            // True for a suppressed debuff (BuffComponent.IsBuffSuppressed): the game stops its effects while a buff with
+            // the tag DebuffSuppressor is active. SuppressedBy is the game's name of that buff, or null.
+            public bool Suppressed;
+            public string SuppressedBy;
         }
 
         // The loss of one stat from one buff, as positive amounts: the loss of each interval, the interval in game
@@ -55,7 +59,7 @@ namespace StatsUI
             public int EndTime;
             // The full time in game seconds, -1 for none.
             public double FullTime;
-            // The loss of each stat row, or null when the mod cannot read the losses of the buff.
+            // The loss of each stat row, or null when the mod cannot read the losses of the buff or the game suppresses it.
             public Loss[] Losses;
             // The game's reduction of the interval values of a cold debuff, 0 for another buff.
             public double ColdReduce;
@@ -65,6 +69,9 @@ namespace StatsUI
             // The code tree of its effect row and the fields of that row, for the effect lines; else null.
             public string Tree;
             public IReadOnlyDictionary<string, double> TreeFields;
+            // The game's name of the buff that suppresses this debuff ("" when the mod finds no name), or null when it is
+            // not suppressed. A suppressed debuff has no losses and no effect lines: the game applies none of its effects.
+            public string SuppressedBy;
         }
 
         // The stat of each stat row in the names of the Config_Effect fields: Life is the stat Vitality.
@@ -132,7 +139,8 @@ namespace StatsUI
                 double full = FullTime(buff.During, buff.DuringFix, buff.DuringAdd);
                 double cold = buff.Cold ? coldReduce : 0;
                 bool plain = buff.Tree != null && EffectLines.PlainTrees.Contains(buff.Tree);
-                var effect = plain ? buff.Fields : null;
+                var effect = plain && !buff.Suppressed ? buff.Fields : null;
+                bool tree = !plain && !buff.Suppressed;
                 entries.Add(new Entry
                 {
                     ConfigId = buff.ConfigId,
@@ -147,8 +155,9 @@ namespace StatsUI
                     Losses = Losses(effect, buff.Layers, cold),
                     ColdReduce = cold,
                     Effect = effect,
-                    Tree = plain ? null : buff.Tree,
-                    TreeFields = plain ? null : buff.Fields,
+                    Tree = tree ? buff.Tree : null,
+                    TreeFields = tree ? buff.Fields : null,
+                    SuppressedBy = buff.Suppressed ? buff.SuppressedBy ?? "" : null,
                 });
             }
             return entries;

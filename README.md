@@ -25,9 +25,9 @@ Nexus page: https://www.nexusmods.com/survivallog/mods/27
 
 The `x1.65` beside a stat means a 65% bonus to gains, up to the game's `x3` cap. Natural recovery, food effects, and losses have separate modifiers. The stat tooltip shows these modifiers as percentages and leaves out those with no change from normal. The game's description of the stat appears at the bottom by default.
 
-The loss preview includes stacked effects, cold damage reduction from Cold-Resistant Constitution, and changes in loss multipliers as timed effects expire. The shading stops at zero on the bar. Effects without an end time and effects the mod cannot read are excluded; natural decay and later actions or meals are outside the preview.
+The loss preview includes stacked effects, cold damage reduction from Cold-Resistant Constitution, and changes in loss multipliers as timed effects expire. The shading stops at zero on the bar. Effects without an end time, debuffs that Analgesia suppresses, and effects the mod cannot read are excluded; natural decay and later actions or meals are outside the preview.
 
-Buff and debuff tooltips show each effect's own values, including its layers and any reductions to cold damage or carrying penalties that apply to that effect. The stat tooltip's Coming loss section also includes the stat's loss modifier. The game's original buff description remains below the effect lines, even when its stated value differs. A layer count appears only when an effect has more than one layer.
+Buff and debuff tooltips show each effect's own values, including its layers and any reductions to cold damage or carrying penalties that apply to that effect. The stat tooltip's Coming loss section also includes the stat's loss modifier. The game's original buff description remains below the effect lines, even when its stated value differs. A layer count appears only when an effect has more than one layer. A debuff that Analgesia suppresses shows "Suppressed by Analgesia" in place of its effect values, because the game applies none of its effects then.
 
 The Well-Fed line uses the game's threshold. Carried weight is rounded up to one decimal place, as in the game's storage window; the number has no unit label. The weight bar fills towards your weight limit, with its gap marking the weight where Encumbered starts.
 

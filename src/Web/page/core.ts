@@ -19,11 +19,6 @@ export function partsMissing(doc: Document, feature: keyof typeof FEATURES): str
   return (FEATURES[feature] as string[]).filter((part) => !doc.querySelector(part));
 }
 
-// A mod text with its {name} placeholders filled, as I18nTexts.Fill does in C#.
-export function fill(text: string, values: Record<string, string | number>): string {
-  return String(text || '').replace(/\{(\w+)\}/g, (all, name: string) => (name in values ? String(values[name]) : all));
-}
-
 // The value and the maximum of a bar text of the game ("76/135"), each 0 when the text has none.
 export function barNumbers(barValue: string): { value: number; max: number } {
   const [v, m] = String(barValue || '').split('/').map(Number);

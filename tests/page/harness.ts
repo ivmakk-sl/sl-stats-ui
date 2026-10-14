@@ -152,7 +152,7 @@ export function withBadges(rows: AttrRow[], badges: Record<number, JsonBuff[]>):
 
 // A buff entry of the buffs part.
 export function buffData(id: number, row: number, end: number, full: number, good = true): BuffData {
-  return { id, row, good, layers: 1, maxLayers: 0, end, full, desc: 'The text of buff ' + id + '.', losses: null, lines: [] };
+  return { id, row, good, layers: 1, maxLayers: 0, end, full, desc: 'The text of buff ' + id + '.', suppressed: null, losses: null, lines: [] };
 }
 
 // The badges of one stat row in page order, without a leaving badge.

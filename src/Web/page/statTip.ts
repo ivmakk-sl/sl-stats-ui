@@ -5,7 +5,8 @@
 // moves its times and sums with text data writes only.
 import { formatLeft, type TipSource } from './buffTip';
 import { comingLossParts, type LossPart } from './comingLoss';
-import { fill, partsMissing } from './core';
+import { fill, word } from '../../Shared/i18n/web/words';
+import { partsMissing } from './core';
 import { matchBadges } from './stripes';
 import type { CoreState, CoreWindow, PageData } from './types';
 
@@ -50,9 +51,9 @@ function addSeparator(doc: Document, grid: HTMLElement): void {
 function whenText(part: LossPart, texts: Record<string, string>): string {
   const amount = plain(-part.amount);
   const left = formatLeft(part.left);
-  if (part.kind === 'end') return fill(texts.lossAtEnd, { left });
-  if (part.every === 3600) return fill(texts.lossEachHour, { amount, left });
-  return fill(texts.lossEvery, { amount, hours: Math.round((part.every / 3600) * 100) / 100, left });
+  if (part.kind === 'end') return fill(word(texts, 'lossAtEnd'), { left });
+  if (part.every === 3600) return fill(word(texts, 'lossEachHour'), { amount, left });
+  return fill(word(texts, 'lossEvery'), { amount, hours: Math.round((part.every / 3600) * 100) / 100, left });
 }
 
 // The open tooltip, for the step: its node, its stat row, and the key and the text nodes of each part of its coming
@@ -91,16 +92,16 @@ function build(doc: Document, state: CoreState, data: PageData, row: number, now
   // The gains and the loss as signed percents with no tone (the form of the effect lines); the cap keeps its tone.
   const grid = el(doc, 'div', 'stui-stat-grid');
   if (stat.mark) {
-    const gain = addRow(doc, grid, texts.gain, percent(stat.gain) + (stat.mark.tone === 'cap' ? ' MAX' : ''));
+    const gain = addRow(doc, grid, word(texts, 'gain'), percent(stat.gain) + (stat.mark.tone === 'cap' ? ' MAX' : ''));
     if (stat.mark.tone === 'cap') gain.num.classList.add('stui-cap');
   }
-  if (Math.abs(stat.naturalGain) >= NO_MARK_WITHIN) addRow(doc, grid, texts.naturalGain, percent(stat.naturalGain));
-  if (Math.abs(stat.loss) >= NO_MARK_WITHIN) addRow(doc, grid, texts.loss, percent(stat.loss));
+  if (Math.abs(stat.naturalGain) >= NO_MARK_WITHIN) addRow(doc, grid, word(texts, 'naturalGain'), percent(stat.naturalGain));
+  if (Math.abs(stat.loss) >= NO_MARK_WITHIN) addRow(doc, grid, word(texts, 'loss'), percent(stat.loss));
 
   const food = stat.food || [];
   if (food.length > 0) {
     addSeparator(doc, grid);
-    addRow(doc, grid, texts.gainOnEating, '', 'stui-stat-section');
+    addRow(doc, grid, word(texts, 'gainOnEating'), '', 'stui-stat-section');
     for (const f of food) addRow(doc, grid, f.name, percent(f.ratio));
   }
 
@@ -111,7 +112,7 @@ function build(doc: Document, state: CoreState, data: PageData, row: number, now
   if (parts.length > 0) {
     const names = new Map(matchBadges(doc, state, data.buffs).map((m) => [m.entry, m.name]));
     addSeparator(doc, grid);
-    addRow(doc, grid, texts.comingLoss, '', 'stui-stat-section');
+    addRow(doc, grid, word(texts, 'comingLoss'), '', 'stui-stat-section');
     for (const part of parts) {
       const line = addRow(doc, grid, '', plain(-part.sum));
       line.num.classList.add('stui-bad');
@@ -126,7 +127,7 @@ function build(doc: Document, state: CoreState, data: PageData, row: number, now
   if (grid.children.length > 0) tip.appendChild(grid);
 
   if (stat.threshold)
-    tip.appendChild(el(doc, 'div', 'stui-stat-note', fill(texts.wellFedLine, { start: stat.threshold.start, end: stat.threshold.end })));
+    tip.appendChild(el(doc, 'div', 'stui-stat-note', fill(word(texts, 'wellFedLine'), { start: stat.threshold.start, end: stat.threshold.end })));
   if (attr.tipDesc && data.switches.statTooltipGameText) tip.appendChild(el(doc, 'div', 'stui-stat-desc', attr.tipDesc));
   open = { tip, row, keys, when, parts: partNodes };
   return tip;

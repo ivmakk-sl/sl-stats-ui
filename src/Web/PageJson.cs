@@ -154,9 +154,10 @@ namespace StatsUI
             script + ";window.__statsui.setData(" + json + "," + JsonText.Num(now) + ");";
 
         // The buffs part: each buff and debuff of the stat rows, in the order of the game's badges, with its row, its
-        // end time in game seconds (-1 for no end), its full time (-1 for none), and the text of the game.
+        // end time in game seconds (-1 for no end), its full time (-1 for none), the text of the game, and for a
+        // suppressed debuff the mod text suppressedBy filled with the name of the suppressing buff (else null).
         public static string BuffsJson(IReadOnlyList<BuffsLogic.Entry> entries, Func<BuffsLogic.Entry, string> desc,
-            Func<BuffsLogic.Entry, IReadOnlyList<(string Label, string Value, bool Bad)>> lines = null)
+            Func<BuffsLogic.Entry, IReadOnlyList<(string Label, string Value, bool Bad)>> lines = null, string suppressedBy = "")
         {
             var sb = new StringBuilder(160 * entries.Count + 2);
             sb.Append('[');
@@ -172,7 +173,10 @@ namespace StatsUI
                     .Append(",\"end\":").Append(JsonText.Num(e.EndTime))
                     .Append(",\"full\":").Append(Frac(e.FullTime))
                     .Append(",\"desc\":").AppendStr(desc(e) ?? "")
-                    .Append(",\"losses\":");
+                    .Append(",\"suppressed\":");
+                if (e.SuppressedBy != null) sb.AppendStr(SlShared.I18n.I18nTexts.Fill(suppressedBy ?? "", ("buff", e.SuppressedBy)));
+                else sb.Append("null");
+                sb.Append(",\"losses\":");
                 AppendLosses(sb, e.Losses);
                 sb.Append(",\"lines\":[");
                 var list = lines?.Invoke(e);

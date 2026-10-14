@@ -95,6 +95,17 @@ test('a debuff has its title in the debuff tone, and a layer count above one sho
   assert.equal(tip.lastElementChild.className, 'stui-tip-desc', 'the text of the game is last');
 });
 
+test('a mod text that C# did not send shows its name, as the C# code does', async (t) => {
+  const d = data();
+  d.texts = {};
+  const { core } = await hud(t, d);
+  const cold = badgesOf(core, 2)[0];
+
+  over(core, cold);
+
+  assert.equal(tipOf(cold).querySelector('.stui-tip-layers .stui-tip-label').textContent, 'layers');
+});
+
 test('a buff with no end shows no time line', async (t) => {
   const { core } = await hud(t);
   const enc = badgesOf(core, 3)[0];
@@ -191,4 +202,28 @@ test('the value of a penalty shows in the debuff tone, and another value keeps i
   const values = [...tipOf(vim).querySelectorAll('.stui-tip-line .stui-tip-value')];
   assert.deepEqual(values.map((v: Win) => v.classList.contains('stui-bad')), [false, true]);
   assert.match(css(core), /\.stui-tip-value\.stui-bad\s*\{[^}]*color:\s*var\(--stui-mark-bad\)/);
+});
+
+test('a suppressed debuff shows the suppression line in the gain tone under the time bar and no effect lines; another badge none', async (t) => {
+  const d = data();
+  d.buffs[1].suppressed = 'Suppressed by Analgesia';
+  d.buffs[0].lines = [{ label: 'Morale gain', value: '+50%', bad: false }];
+  const { core } = await hud(t, d);
+  const cold = badgesOf(core, 2)[0];
+  const vim = badgesOf(core, 1)[0];
+
+  over(core, cold);
+  const tip = tipOf(cold);
+  const line = tip.querySelector('.stui-tip-suppressed');
+  assert.ok(line, 'no suppression line');
+  assert.equal(line.textContent, 'Suppressed by Analgesia');
+  assert.equal(tip.querySelectorAll('.stui-tip-line').length, 0);
+  const order = [...tip.children].map((c: Win) => c.className.split(' ')[0]);
+  assert.ok(order.indexOf('stui-tip-bar') < order.indexOf('stui-tip-suppressed'), 'the line comes after the time bar: ' + order);
+  assert.ok(order.indexOf('stui-tip-suppressed') < order.indexOf('stui-tip-desc'), 'the line comes before the text of the game: ' + order);
+  assert.match(css(core), /\.stui-tip-suppressed\s*\{[^}]*color:\s*var\(--stui-mark-good\)/);
+  out(core, cold);
+
+  over(core, vim);
+  assert.equal(tipOf(vim).querySelector('.stui-tip-suppressed'), null);
 });

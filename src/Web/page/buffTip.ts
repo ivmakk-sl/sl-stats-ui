@@ -1,8 +1,10 @@
 // The tooltip of the mod on a buff badge ("1 Plain"): a neutral dark box with the title in the buff or debuff tone,
-// the time left with a time bar, the effect lines, the text of the game, and the layer count above one. While the extended tooltips
-// are on, the body has the class stui-tips, under which the CSS hides the game's tooltip. The tooltip is one node in
-// the hovered badge, at the place of the game's tooltip; it is built on pointerover and removed on pointerout. The
-// step of the page moves its time with a text data write and a style write, so no observer of a childList wakes.
+// the time left with a time bar, the suppression line of a suppressed debuff, the effect lines, the text of the game,
+// and the layer count above one. While the extended tooltips are on, the body has the class stui-tips, under which
+// the CSS hides the game's tooltip. The tooltip is one node in the hovered badge, at the place of the game's tooltip;
+// it is built on pointerover and removed on pointerout. The step of the page moves its time with a text data write
+// and a style write, so no observer of a childList wakes.
+import { word } from '../../Shared/i18n/web/words';
 import { setStyle } from './core';
 import { matchBadges, type BadgeMatch } from './stripes';
 import type { CoreState, CoreWindow, PageData } from './types';
@@ -51,6 +53,7 @@ function build(doc: Document, match: BadgeMatch, data: PageData, now: number | n
     bar.appendChild(el(doc, 'div', 'stui-tip-fill'));
     tip.appendChild(bar);
   }
+  if (e.suppressed) tip.appendChild(el(doc, 'div', 'stui-tip-suppressed', e.suppressed));
   if ((e.lines && e.lines.length > 0) || e.layers > 1) {
     const lines = el(doc, 'div', 'stui-tip-lines');
     for (const line of e.lines || []) {
@@ -61,7 +64,7 @@ function build(doc: Document, match: BadgeMatch, data: PageData, now: number | n
     }
     if (e.layers > 1) {
       const layers = el(doc, 'div', 'stui-tip-layers');
-      layers.appendChild(el(doc, 'span', 'stui-tip-label', data.texts.layers || ''));
+      layers.appendChild(el(doc, 'span', 'stui-tip-label', word(data.texts, 'layers')));
       layers.appendChild(el(doc, 'span', 'stui-tip-value', e.maxLayers > 1 ? e.layers + '/' + e.maxLayers : String(e.layers)));
       lines.appendChild(layers);
     }

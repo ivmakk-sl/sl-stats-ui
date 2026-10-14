@@ -94,7 +94,8 @@ export interface EffectLine {
 
 // One buff or debuff of a stat row (PageJson.BuffsJson), in the order of the game's badges: its config id, its
 // stat row, buff or debuff, its layers, its end time and its full time in game seconds (-1 for no end or none), the
-// text of the game, the loss of each stat row (null when the mod cannot read its losses), and the effect lines.
+// text of the game, the suppression line of a suppressed debuff (null for another badge), the loss of each stat row
+// (null when the mod cannot read its losses or the game suppresses the debuff), and the effect lines.
 export interface BuffData {
   id: number;
   row: number;
@@ -105,6 +106,7 @@ export interface BuffData {
   end: number;
   full: number;
   desc: string;
+  suppressed: string | null;
   losses: LossData[] | null;
   lines: EffectLine[];
 }

@@ -15,7 +15,7 @@ function none(): LossData {
 function buff(id: number, end: number, rows: Record<number, Partial<LossData>>): BuffData {
   const losses = [none(), none(), none(), none()];
   for (const k of Object.keys(rows)) Object.assign(losses[Number(k)], rows[Number(k)]);
-  return { id, row: 2, good: true, layers: 1, maxLayers: 0, end, full: 86400, desc: '', losses, lines: [] };
+  return { id, row: 2, good: true, layers: 1, maxLayers: 0, end, full: 86400, desc: '', suppressed: null, losses, lines: [] };
 }
 
 // Stimulants: Life -3 each hour.

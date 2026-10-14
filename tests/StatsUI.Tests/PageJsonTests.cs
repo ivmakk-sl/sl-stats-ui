@@ -174,6 +174,22 @@ public class PageJsonTests
     }
 
     [Fact]
+    public void A_suppressed_buff_entry_holds_the_filled_suppression_line_and_another_entry_null()
+    {
+        var entries = new List<BuffsLogic.Entry>
+        {
+            new BuffsLogic.Entry { ConfigId = 1111, Row = 3, EndTime = 5000, FullTime = 86400, SuppressedBy = "Analgesia" },
+            new BuffsLogic.Entry { ConfigId = 1300, Row = 0, EndTime = -1, FullTime = -1 },
+        };
+
+        var buffs = JsonNode.Parse(PageJson.BuffsJson(entries, e => "", suppressedBy: "Suppressed by {buff}")).AsArray();
+
+        Assert.Equal("Suppressed by Analgesia", (string)buffs[0]["suppressed"]);
+        Assert.Null(buffs[1]["suppressed"]);
+        Assert.True(buffs[1].AsObject().ContainsKey("suppressed"));
+    }
+
+    [Fact]
     public void A_stat_row_holds_its_food_type_gain_ratios_with_their_names()
     {
         var rows = new[]
