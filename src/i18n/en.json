@@ -33,5 +33,7 @@
   "lossEvery": "{amount} every {hours} h for {left}",
   "lossAtEnd": "in {left}",
   "wellFedLine": "Well-Fed from {start}, ends below {end}",
-  "suppressedBy": "Suppressed by {buff}"
+  "suppressedBy": "Suppressed by {buff}",
+  "curedBy": "Cure with:",
+  "suppressedByList": "Suppress with:"
 }

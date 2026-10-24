@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - The tooltip of a suppressed debuff (for example Bleeding while Analgesia is active) shows "Suppressed by Analgesia" in place of its effect values.
+- The tooltip of a debuff lists the items that cure it ("Cure with:") and the items that suppress it ("Suppress with:"), each with its icon and how many you have in your backpack and home storage. Items you have none of show dimmed. Turn it off with `CuresInTooltips` (see [CONFIG.md](CONFIG.md)).
 
 ### Fixed
 

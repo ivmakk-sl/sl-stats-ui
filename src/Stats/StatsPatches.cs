@@ -11,7 +11,8 @@ namespace StatsUI
         private static void Postfix() => PageTick.Mark(DataParts.Part.Stats);
     }
 
-    // The buff list of the leading role changed (State_Data_Buff.LeadingRoleBuffList).
+    // The buff list of the leading role changed (State_Data_Buff.LeadingRoleBuffList). The cures part holds the
+    // debuffs of that list.
     [HarmonyPatch(typeof(Reducer_Data_Buff), "RA_RefreshLeadingRoleBuff")]
     internal static class StatsOnRefreshLeadingRoleBuff
     {
@@ -19,6 +20,7 @@ namespace StatsUI
         {
             PageTick.Mark(DataParts.Part.Stats);
             PageTick.Mark(DataParts.Part.Buffs);
+            PageTick.Mark(DataParts.Part.Cures);
         }
     }
 }

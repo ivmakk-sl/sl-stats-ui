@@ -42,6 +42,8 @@ export interface Switches {
   extendedTooltips: boolean;
   // The text of the game at the bottom of the stat tooltip.
   statTooltipGameText: boolean;
+  // The cures and the suppressors in the tooltip of a debuff badge, shown only while extendedTooltips is on too.
+  curesInTooltips: boolean;
 }
 
 // The gain mark of a stat bar (StatsLogic.GainMark in C#).
@@ -120,14 +122,31 @@ export interface WeightData {
   tone: 'good' | 'near' | 'over';
 }
 
+// One item line of the cures part (PageJson.CuresJson): the item id, its name in the display language, its web icon
+// (a path of the web UI, empty for none), and its item total (0: dimmed, no count).
+export interface CureItem {
+  id: number;
+  name: string;
+  icon: string;
+  total: number;
+}
+
+// The two item lists of one debuff, in the order of the tooltip (CuresLogic.LinesOf in C#).
+export interface CureLists {
+  cures: CureItem[];
+  suppressors: CureItem[];
+}
+
 // The data of setData (PageJson.DataJson): the switches, the mod texts of the display language by name, and
-// the parts of the stat panel and the bag button. weight null: not read yet.
+// the parts of the stat panel and the bag button. weight null: not read yet. cures: the item lists of each debuff
+// of the buff list with a cure or a suppressor, by its config id.
 export interface PageData {
   switches: Switches;
   texts: Record<string, string>;
   stats: StatData[];
   buffs: BuffData[];
   weight: WeightData | null;
+  cures: Record<string, CureLists>;
 }
 
 // now: the game time in game seconds, the anchor of the page clock.

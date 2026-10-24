@@ -1,0 +1,8 @@
+# Library copy of shared/item-pool. Do not edit it: edit shared/item-pool/, then run tools/shared-sync.ps1 -Mod StatsUI -Lib item-pool.
+name=item-pool
+version=1.0.0
+sha256 cs-game/InvalidatePatches.cs 413fbcaecde4eb79f0b3c3540f2680143ce40d5d81776d2fc6d337512577264a
+sha256 cs-game/ItemPool.cs 85e22733dea23bbceb4c9cc19eff30c5ffcde33e1e252825da3fc88f462e6d31
+sha256 cs-game/Pool.cs 44ac8230639ba18e141f05ab74a3445ff8d7f5d0cdc4a763d75a0c7b6e866c4f
+sha256 cs/TotalsLogic.cs 932379819eadeab2dc456880ece0353ecfe151ff1b302ae551e15498a5f55e4d
+sha256 cs/TotalsStore.cs 0ac19a6594a60b28ad62d1b82a07d6cceadae24746d48be2b329eefbc508a2c6

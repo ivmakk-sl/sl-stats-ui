@@ -239,6 +239,7 @@ public class DataPartsTests
             [DataParts.Part.Buffs] = "[2]",
             [DataParts.Part.Weight] = "3",
             [DataParts.Part.Texts] = "{}",
+            [DataParts.Part.Cures] = "{c}",
         };
         public readonly List<DataParts.Part> Reads = new List<DataParts.Part>();
         public string Read(DataParts.Part part) { Reads.Add(part); return Json[part]; }
@@ -253,8 +254,8 @@ public class DataPartsTests
         var parts = new DataParts();
 
         Assert.True(parts.AnyDirty);
-        Assert.Equal("[1]|[2]|3|{}", Join(parts.Read(game.Read)));
-        Assert.Equal(4, game.Reads.Count);
+        Assert.Equal("[1]|[2]|3|{}|{c}", Join(parts.Read(game.Read)));
+        Assert.Equal(5, game.Reads.Count);
         Assert.False(parts.AnyDirty);
     }
 
@@ -271,8 +272,25 @@ public class DataPartsTests
         parts.Mark(DataParts.Part.Weight);
         var step = schedule.Tick(0.1f, parts.AnyDirty, () => Join(parts.Read(game.Read)));
 
-        Assert.Equal(new PushSchedule.Step(PushSchedule.Kind.Push, "[1]|[2]|4|{}"), step);
+        Assert.Equal(new PushSchedule.Step(PushSchedule.Kind.Push, "[1]|[2]|4|{}|{c}"), step);
         Assert.Equal(new[] { DataParts.Part.Weight }, game.Reads);
+    }
+
+    [Fact]
+    public void A_new_item_total_marks_only_the_cures_part()
+    {
+        var game = new Game();
+        var parts = new DataParts();
+        var schedule = new PushSchedule();
+        schedule.Tick(0f, parts.AnyDirty, () => Join(parts.Read(game.Read)));
+        game.Reads.Clear();
+
+        game.Json[DataParts.Part.Cures] = "{c2}";
+        parts.Mark(DataParts.Part.Cures);
+        var step = schedule.Tick(0.1f, parts.AnyDirty, () => Join(parts.Read(game.Read)));
+
+        Assert.Equal(new PushSchedule.Step(PushSchedule.Kind.Push, "[1]|[2]|3|{}|{c2}"), step);
+        Assert.Equal(new[] { DataParts.Part.Cures }, game.Reads);
     }
 
     [Fact]
@@ -305,7 +323,7 @@ public class DataPartsTests
         var first = schedule.Tick(0.1f, parts.AnyDirty, () => Join(parts.Read(game.Read)));
         var second = schedule.Tick(0.2f, parts.AnyDirty, () => Join(parts.Read(game.Read)));
 
-        Assert.Equal(new PushSchedule.Step(PushSchedule.Kind.Push, "[5]|[6]|3|{}"), first);
+        Assert.Equal(new PushSchedule.Step(PushSchedule.Kind.Push, "[5]|[6]|3|{}|{c}"), first);
         Assert.Equal(PushSchedule.Kind.None, second.Kind);
     }
 
@@ -316,6 +334,6 @@ public class DataPartsTests
         Assert.Throws<InvalidOperationException>(() => parts.Read(_ => throw new InvalidOperationException("no save")));
 
         Assert.True(parts.AnyDirty);
-        Assert.Equal("[1]|[2]|3|{}", Join(parts.Read(new Game().Read)));
+        Assert.Equal("[1]|[2]|3|{}|{c}", Join(parts.Read(new Game().Read)));
     }
 }

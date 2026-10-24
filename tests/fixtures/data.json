@@ -3,10 +3,12 @@
     "weightReadout": true,
     "timeStripes": true,
     "extendedTooltips": true,
-    "statTooltipGameText": true
+    "statTooltipGameText": true,
+    "curesInTooltips": true
   },
   "texts": {},
   "stats": [],
   "buffs": [],
-  "weight": null
+  "weight": null,
+  "cures": {}
 }

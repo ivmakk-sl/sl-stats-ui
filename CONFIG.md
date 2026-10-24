@@ -12,6 +12,7 @@ Gain multipliers beside stat names, coming loss shading, the Well-Fed line, the 
 | `TimeStripes` | `true` | `true` / `false` | Shows a timer stripe along the bottom of each timed buff and debuff badge. `false` hides these stripes. |
 | `ExtendedTooltips` | `true` | `true` / `false` | Shows effect values and timers when you hover over stat bars or buff and debuff badges. `false` restores the game's tooltips. |
 | `StatTooltipGameText` | `true` | `true` / `false` | Keeps the game's stat description at the bottom of each stat bar tooltip. `false` hides that description. Applies only when `ExtendedTooltips` is `true`; buff and debuff descriptions stay visible. |
+| `CuresInTooltips` | `true` | `true` / `false` | Lists the items that cure or suppress a debuff ("Cure with:" and "Suppress with:") in its tooltip, with how many you have in your backpack and home storage. `false` hides these lists. Applies only when `ExtendedTooltips` is `true`. |
 
 ## General
 

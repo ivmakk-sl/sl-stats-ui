@@ -76,11 +76,12 @@ export function call(root: Win, callExpr: string): string {
 // The data of a push with no stat, buff, or weight data: each switch on, no texts.
 export function emptyData(): PageData {
   return {
-    switches: { weightReadout: true, timeStripes: true, extendedTooltips: true, statTooltipGameText: true },
+    switches: { weightReadout: true, timeStripes: true, extendedTooltips: true, statTooltipGameText: true, curesInTooltips: true },
     texts: {},
     stats: [],
     buffs: [],
     weight: null,
+    cures: {},
   };
 }
 
