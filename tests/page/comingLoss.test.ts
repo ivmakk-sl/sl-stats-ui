@@ -14,7 +14,7 @@ function stimulants(hoursLeft: number): BuffData {
   const none = (): LossData => ({ each: 0, every: 0, atEnd: 0, ratio: 0 });
   const losses = [none(), none(), none(), none()];
   losses[LIFE] = { each: 3, every: HOUR, atEnd: 0, ratio: 0 };
-  return { id: 24040, row: 2, good: true, layers: 1, maxLayers: 0, end: NOW + hoursLeft * HOUR, full: 86400, desc: '', losses, lines: [] };
+  return { id: 24040, row: 2, good: true, layers: 1, maxLayers: 0, end: NOW + hoursLeft * HOUR, full: 86400, desc: '', suppressed: null, losses, lines: [] };
 }
 
 function data(hoursLeft = 12.5) {

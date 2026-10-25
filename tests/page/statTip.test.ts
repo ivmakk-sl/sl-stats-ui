@@ -37,8 +37,8 @@ function data() {
   adre[LIFE] = { each: 0, every: 0, atEnd: 20, ratio: 0 };
   // Some minutes more than the whole hours, as the page clock moves some game seconds in a test.
   d.buffs = [
-    { id: 24040, row: 2, good: true, layers: 1, maxLayers: 0, end: NOW + 12 * HOUR + 600, full: 86400, desc: '', losses: stim, lines: [] },
-    { id: 24030, row: 2, good: true, layers: 1, maxLayers: 0, end: NOW + 14 * HOUR + 600, full: 86400, desc: '', losses: adre, lines: [] },
+    { id: 24040, row: 2, good: true, layers: 1, maxLayers: 0, end: NOW + 12 * HOUR + 600, full: 86400, desc: '', suppressed: null, losses: stim, lines: [] },
+    { id: 24030, row: 2, good: true, layers: 1, maxLayers: 0, end: NOW + 14 * HOUR + 600, full: 86400, desc: '', suppressed: null, losses: adre, lines: [] },
   ];
   return d;
 }

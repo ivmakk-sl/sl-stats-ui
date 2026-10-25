@@ -1,0 +1,7 @@
+v1.1.0 - 2026-10-25
+Added: Debuff tooltips list the items that cure the debuff ("Cure with:") and the items that suppress it ("Suppress with:"), with each item's icon and how many you have in your backpack and home storage. Items you have none of show dimmed.
+Added: The tooltip of a suppressed debuff (for example Bleeding while Analgesia is active) shows "Suppressed by Analgesia" in place of its effect values.
+Removed: Support for game versions before 1.1.18599.
+Fixed: A debuff that Analgesia suppresses no longer shows coming losses on the stat bars or in the stat tooltips.
+Fixed: The mod text follows a change of the game language in the settings again.
+Fixed: With a community translation of the game, the mod text shows in English.

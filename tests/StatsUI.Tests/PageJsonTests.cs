@@ -7,13 +7,13 @@ public class PageJsonTests
     private static JsonNode Fixture(string name) =>
         JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "fixtures", name)));
 
-    private static readonly PageJson.Switches AllOn = new PageJson.Switches { WeightReadout = true, TimeStripes = true, ExtendedTooltips = true, StatTooltipGameText = true };
+    private static readonly PageJson.Switches AllOn = new PageJson.Switches { WeightReadout = true, TimeStripes = true, ExtendedTooltips = true, StatTooltipGameText = true, CuresInTooltips = true };
 
     [Fact]
     public void The_data_with_no_part_read_yet_matches_the_fixture()
     {
         string json = PageJson.DataJson(AllOn, PageJson.TextsJson(new Dictionary<string, string>()),
-            PageJson.EmptyStats, PageJson.EmptyBuffs, PageJson.EmptyWeight);
+            PageJson.EmptyStats, PageJson.EmptyBuffs, PageJson.EmptyWeight, PageJson.EmptyCures);
 
         Assert.True(JsonNode.DeepEquals(Fixture("data.json"), JsonNode.Parse(json)), json);
     }
@@ -21,14 +21,26 @@ public class PageJsonTests
     [Fact]
     public void The_switches_go_as_they_are_set()
     {
-        var switches = new PageJson.Switches { WeightReadout = false, TimeStripes = true, ExtendedTooltips = false, StatTooltipGameText = false };
+        var switches = new PageJson.Switches { WeightReadout = false, TimeStripes = true, ExtendedTooltips = false, StatTooltipGameText = false, CuresInTooltips = true };
 
-        var data = JsonNode.Parse(PageJson.DataJson(switches, "{}", "[]", "[]", "null"));
+        var data = JsonNode.Parse(PageJson.DataJson(switches, "{}", "[]", "[]", "null", "{}"));
 
         Assert.False((bool)data["switches"]["weightReadout"]);
         Assert.True((bool)data["switches"]["timeStripes"]);
         Assert.False((bool)data["switches"]["extendedTooltips"]);
         Assert.False((bool)data["switches"]["statTooltipGameText"]);
+        Assert.True((bool)data["switches"]["curesInTooltips"]);
+    }
+
+    [Fact]
+    public void The_switch_of_the_cures_goes_off_on_its_own()
+    {
+        var switches = new PageJson.Switches { WeightReadout = true, TimeStripes = true, ExtendedTooltips = true, StatTooltipGameText = true, CuresInTooltips = false };
+
+        var data = JsonNode.Parse(PageJson.DataJson(switches, "{}", "[]", "[]", "null", "{}"));
+
+        Assert.False((bool)data["switches"]["curesInTooltips"]);
+        Assert.True((bool)data["switches"]["extendedTooltips"]);
     }
 
     [Fact]
@@ -174,6 +186,22 @@ public class PageJsonTests
     }
 
     [Fact]
+    public void A_suppressed_buff_entry_holds_the_filled_suppression_line_and_another_entry_null()
+    {
+        var entries = new List<BuffsLogic.Entry>
+        {
+            new BuffsLogic.Entry { ConfigId = 1111, Row = 3, EndTime = 5000, FullTime = 86400, SuppressedBy = "Analgesia" },
+            new BuffsLogic.Entry { ConfigId = 1300, Row = 0, EndTime = -1, FullTime = -1 },
+        };
+
+        var buffs = JsonNode.Parse(PageJson.BuffsJson(entries, e => "", suppressedBy: "Suppressed by {buff}")).AsArray();
+
+        Assert.Equal("Suppressed by Analgesia", (string)buffs[0]["suppressed"]);
+        Assert.Null(buffs[1]["suppressed"]);
+        Assert.True(buffs[1].AsObject().ContainsKey("suppressed"));
+    }
+
+    [Fact]
     public void A_stat_row_holds_its_food_type_gain_ratios_with_their_names()
     {
         var rows = new[]
@@ -203,6 +231,74 @@ public class PageJsonTests
         Assert.Equal(-0.2, (double)stats[0]["lossRest"], 4);
         Assert.Equal(-0.5, (double)stats[0]["lossMin"], 4);
         Assert.Equal(2, (double)stats[0]["lossMax"], 4);
+    }
+
+    private static CuresLogic.Lines Lines((int id, int total)[] cures, (int id, int total)[] suppressors)
+    {
+        var lines = new CuresLogic.Lines();
+        foreach (var (id, total) in cures) lines.Cures.Add(new CuresLogic.Line { ItemId = id, Total = total });
+        foreach (var (id, total) in suppressors) lines.Suppressors.Add(new CuresLogic.Line { ItemId = id, Total = total });
+        return lines;
+    }
+
+    private static readonly Dictionary<int, (string Name, string Icon)> Names = new()
+    {
+        [2408] = ("Painkillers", "Item_2408"),
+        [2413] = ("Kangfuxin Liquid", "Item_2413"),
+        [2916] = ("Morphine Injection", ""),
+        [2405] = ("Antibiotics", "Item_2405"),
+        [2406] = ("Fever Meds", "Item_2406"),
+    };
+
+    [Fact]
+    public void The_cures_part_holds_the_two_item_lists_of_each_debuff_in_the_order_given()
+    {
+        var byDebuff = new Dictionary<int, CuresLogic.Lines>
+        {
+            [1102] = Lines(new[] { (2408, 2), (2413, 0) }, new[] { (2916, 0) }),
+            [1121] = Lines(new (int, int)[0], new[] { (2406, 3), (2405, 0) }),
+        };
+
+        var cures = JsonNode.Parse(PageJson.CuresJson(true, byDebuff, Names));
+
+        var stomach = cures["1102"];
+        Assert.Equal(2, stomach["cures"].AsArray().Count);
+        Assert.Equal(2408, (int)stomach["cures"][0]["id"]);
+        Assert.Equal("Painkillers", (string)stomach["cures"][0]["name"]);
+        Assert.Equal("Item_2408", (string)stomach["cures"][0]["icon"]);
+        Assert.Equal(2, (int)stomach["cures"][0]["total"]);
+        Assert.Equal(2413, (int)stomach["cures"][1]["id"]);
+        Assert.Equal(0, (int)stomach["cures"][1]["total"]);
+        Assert.Equal("Morphine Injection", (string)stomach["suppressors"][0]["name"]);
+        Assert.Equal("", (string)stomach["suppressors"][0]["icon"]);
+        Assert.Empty(cures["1121"]["cures"].AsArray());
+        Assert.Equal(new[] { 2406, 2405 }, cures["1121"]["suppressors"].AsArray().Select(n => (int)n["id"]).ToArray());
+    }
+
+    [Fact]
+    public void A_debuff_with_no_line_gets_no_entry()
+    {
+        var byDebuff = new Dictionary<int, CuresLogic.Lines> { [4] = new CuresLogic.Lines() };
+
+        var cures = JsonNode.Parse(PageJson.CuresJson(true, byDebuff, Names)).AsObject();
+
+        Assert.Empty(cures);
+    }
+
+    [Fact]
+    public void The_cures_part_is_empty_with_the_switch_off()
+    {
+        var byDebuff = new Dictionary<int, CuresLogic.Lines> { [1102] = Lines(new[] { (2408, 2) }, new (int, int)[0]) };
+
+        Assert.Equal("{}", PageJson.CuresJson(false, byDebuff, Names));
+    }
+
+    [Fact]
+    public void The_data_carries_the_cures_part()
+    {
+        var data = JsonNode.Parse(PageJson.DataJson(AllOn, "{}", "[]", "[]", "null", "{\"1102\":{\"cures\":[],\"suppressors\":[]}}"));
+
+        Assert.NotNull(data["cures"]["1102"]);
     }
 
     [Fact]

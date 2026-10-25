@@ -251,6 +251,14 @@
   background: rgb(from var(--stui-white) r g b / 70%);
 }
 
+/* The suppression line of a suppressed debuff: in the tone of a gain, as the game stops the effects of the debuff. */
+.stui-tip-suppressed {
+  padding: 5px 0;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+  color: var(--stui-mark-good);
+  font-weight: 600;
+}
+
 /* The effect lines and the layer count: a grid of two columns, each value at the right edge of the narrow box. */
 .stui-tip-lines {
   display: grid;
@@ -279,7 +287,8 @@
   color: var(--stui-mark-bad);
 }
 
-/* The text of the game, the same in both tooltips: last, under a thin line, smaller and grey. */
+/* The text of the game, the same in both tooltips: under a thin line, smaller and grey; last but for the cures of a
+   debuff. */
 .stui-tip-desc {
   margin-top: 1px;
   padding-top: 5px;
@@ -287,6 +296,61 @@
   color: var(--stui-tip-desc);
   font-size: 10.5px;
   line-height: 1.45;
+}
+
+/* The cures and the suppressors of a debuff, after the text of the game: each label on its own line in the grey of
+   the text of the game, each item on its own line below it with its icon, its name, and its item total at the right,
+   as the Set Trap menu of Trapline. An item with none at home is dimmed and has no count. */
+.stui-tip-cures {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgb(from var(--stui-white) r g b / 10%);
+}
+
+.stui-tip-cure-label {
+  color: var(--stui-tip-desc);
+  font-size: 10.5px;
+}
+
+.stui-tip-cure + .stui-tip-cure-label {
+  margin-top: 4px;
+}
+
+.stui-tip-cure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A fixed place, also for an item with no icon, so the names stay aligned. */
+.stui-tip-cure-icon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.stui-tip-cure-icon > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.stui-tip-cure-name {
+  flex: 1;
+}
+
+.stui-tip-cure-count {
+  margin-left: 8px;
+  color: var(--stui-white);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stui-tip-cure-none {
+  opacity: 0.45;
 }
 
 /* The tooltip of a stat bar, at the place of the game's tooltip: left of the bar. It grows upward from the bottom of

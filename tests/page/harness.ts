@@ -76,11 +76,12 @@ export function call(root: Win, callExpr: string): string {
 // The data of a push with no stat, buff, or weight data: each switch on, no texts.
 export function emptyData(): PageData {
   return {
-    switches: { weightReadout: true, timeStripes: true, extendedTooltips: true, statTooltipGameText: true },
+    switches: { weightReadout: true, timeStripes: true, extendedTooltips: true, statTooltipGameText: true, curesInTooltips: true },
     texts: {},
     stats: [],
     buffs: [],
     weight: null,
+    cures: {},
   };
 }
 
@@ -152,7 +153,7 @@ export function withBadges(rows: AttrRow[], badges: Record<number, JsonBuff[]>):
 
 // A buff entry of the buffs part.
 export function buffData(id: number, row: number, end: number, full: number, good = true): BuffData {
-  return { id, row, good, layers: 1, maxLayers: 0, end, full, desc: 'The text of buff ' + id + '.', losses: null, lines: [] };
+  return { id, row, good, layers: 1, maxLayers: 0, end, full, desc: 'The text of buff ' + id + '.', suppressed: null, losses: null, lines: [] };
 }
 
 // The badges of one stat row in page order, without a leaving badge.

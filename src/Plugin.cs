@@ -5,10 +5,11 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
+using SlShared.ItemPool;
 
 namespace StatsUI
 {
-    [BepInPlugin(PluginGuid, "Stats UI", "1.0.0")]
+    [BepInPlugin(PluginGuid, "Stats UI", "1.1.0")]
     [BepInProcess("SurvivalLog.exe")]
     public sealed class Plugin : BasePlugin
     {
@@ -20,6 +21,7 @@ namespace StatsUI
         internal static ConfigEntry<bool> TimeStripes;
         internal static ConfigEntry<bool> ExtendedTooltips;
         internal static ConfigEntry<bool> StatTooltipGameText;
+        internal static ConfigEntry<bool> CuresInTooltips;
         internal static ConfigEntry<bool> Verbose;
 
         public override void Load()
@@ -37,11 +39,15 @@ namespace StatsUI
             StatTooltipGameText = Config.Bind(
                 "Display", "StatTooltipGameText", true,
                 "Show the game's text about the stat at the bottom of the extended tooltip of a stat bar. Applies at the next game start.");
+            CuresInTooltips = Config.Bind(
+                "Display", "CuresInTooltips", true,
+                "Show the items that cure or suppress a debuff in the extended tooltip of its badge, with the count in the backpack and home storage. Needs ExtendedTooltips. Applies at the next game start.");
             Verbose = Config.Bind(
                 "General", "Verbose", false,
                 "Log each send to the HUD, the values it sent, and the page-script detail at Debug level. Keep off in normal play.");
+            ItemPool.Setup(Debug, () => Verbose.Value);
             Harmony = new Harmony(PluginGuid);
-            var patches = new List<Type>
+            var patches = new List<Type>(ItemPool.PatchTypes)
             {
                 typeof(PageTick),
                 typeof(WeightOnUpdateOwnerBagWeight),
@@ -49,7 +55,7 @@ namespace StatsUI
                 typeof(WeightOnAddExtraBurden),
                 typeof(StatsOnSyncAttr),
                 typeof(StatsOnRefreshLeadingRoleBuff),
-                typeof(TextsOnSwitchLanguage),
+                typeof(TextsOnApplyLanguageKey),
             };
             // Each patch target is attached on its own, so a target missing after a game update turns
             // off only its own part.

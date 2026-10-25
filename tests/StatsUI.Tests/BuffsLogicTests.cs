@@ -261,4 +261,55 @@ public class BuffsLogicTests
 
         Assert.Equal((16, 100), (entry.Layers, entry.MaxLayers));
     }
+
+    // Bleeding of game 1.1.18599: Life -3 every 2 h. A suppressed debuff (Analgesia active) gets no interval tick in
+    // the game (measured in game 1.1.18599), and the game takes its attribute changes back (AttrHistory.Suspend).
+    private static readonly Dictionary<string, double> Bleeding = new Dictionary<string, double>
+    {
+        ["BuffInterval"] = 7200, ["BuffVitalityInterval"] = -3, ["BuffVitalityDel"] = 0.2,
+    };
+
+    private static BuffsLogic.BuffIn Bled(bool suppressed)
+    {
+        var buff = Buff(1111, 4);
+        buff.IsGood = false;
+        buff.Tree = Default;
+        buff.Fields = Bleeding;
+        buff.Suppressed = suppressed;
+        buff.SuppressedBy = suppressed ? "Analgesia" : null;
+        return buff;
+    }
+
+    [Fact]
+    public void A_suppressed_debuff_has_no_losses_no_effect_lines_and_names_the_suppressing_buff()
+    {
+        var entry = BuffsLogic.Entries(new[] { Bled(true) }, Rows)[0];
+
+        Assert.Null(entry.Losses);
+        Assert.Null(entry.Effect);
+        Assert.Null(entry.Tree);
+        Assert.Null(entry.TreeFields);
+        Assert.Equal("Analgesia", entry.SuppressedBy);
+        Assert.Equal(1111, entry.ConfigId);
+        Assert.Equal(Life, entry.Row);
+    }
+
+    [Fact]
+    public void A_suppressed_debuff_is_no_part_of_the_loss_ratio()
+    {
+        var entries = BuffsLogic.Entries(new[] { Bled(true) }, Rows);
+
+        Assert.Equal(0.1, BuffsLogic.LossRest(0.1, entries, Life), 6);
+    }
+
+    [Fact]
+    public void A_debuff_that_is_not_suppressed_keeps_its_losses_and_effect_row()
+    {
+        var entry = BuffsLogic.Entries(new[] { Bled(false) }, Rows)[0];
+
+        Assert.Equal(3, entry.Losses[Life].Each, 6);
+        Assert.Equal(7200, entry.Losses[Life].Every);
+        Assert.Same(Bleeding, entry.Effect);
+        Assert.Null(entry.SuppressedBy);
+    }
 }

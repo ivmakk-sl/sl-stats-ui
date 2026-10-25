@@ -32,5 +32,8 @@
   "lossEachHour": "每小时{amount}，剩余{left}",
   "lossEvery": "每{hours}小时{amount}，剩余{left}",
   "lossAtEnd": "{left}后",
-  "wellFedLine": "饱腹达到{start}时获得饱足，低于{end}时消失"
+  "wellFedLine": "饱腹达到{start}时获得饱足，低于{end}时消失",
+  "suppressedBy": "被{buff}抑制",
+  "curedBy": "可清除：",
+  "suppressedByList": "可抑制："
 }

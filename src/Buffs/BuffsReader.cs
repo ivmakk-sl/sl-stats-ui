@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using GameCore.HotUpdate.ReduxUI;
@@ -38,7 +39,7 @@ namespace StatsUI
                     Plugin.Log.LogDebug(FormattableString.Invariant($"Stats UI buff: id={e.ConfigId} row={e.Row} layers={e.Layers} end={e.EndTime} full={e.FullTime} now={now} losses={LossesText(e.Losses)}"));
             }
             var texts = ModTexts.Current();
-            return PageJson.BuffsJson(entries, e => Desc(configs[e.ConfigId], state), e => Lines(e, texts, heavyCarryEase));
+            return PageJson.BuffsJson(entries, e => Desc(configs[e.ConfigId], state), e => Lines(e, texts, heavyCarryEase), texts["suppressedBy"]);
         }
 
         // The effect tree of Effortless Strength, whose talent ratio lowers the penalty of Buff/BagOverweight
@@ -106,11 +107,55 @@ namespace StatsUI
                     Cold = c != null && c.TagList != null && c.TagList.Contains(ColdTag),
                 });
             }
+            MarkSuppressed(input, configs);
             return BuffsLogic.Entries(input, StatsLogic.Rows.Count, ColdReduce(state));
         }
 
         // The tag of a cold debuff, whose interval values the game lowers (BuildBuffDesc).
         private const string ColdTag = "ColdDebuff";
+        // The tags of Config_Buff.TagList that the game's suppression reads (BuffComponent.IsSuppressibleDebuff,
+        // GetDebuffSuppressorCount): a debuff that a suppressor stops, and a buff that stops them (Analgesia).
+        private const string SuppressibleTag = "SuppressibleDebuff";
+        private const string SuppressorTag = "DebuffSuppressor";
+
+        private static bool HasTag(Dictionary<int, Config_Buff> configs, int id, string tag) =>
+            configs.TryGetValue(id, out var c) && c.TagList != null && c.TagList.Contains(tag);
+
+        // Marks each suppressible debuff that the game suppresses now, with the name of the active suppressor. When the
+        // game cannot say, each debuff stays not suppressed, with one warning.
+        private static void MarkSuppressed(List<BuffsLogic.BuffIn> input, Dictionary<int, Config_Buff> configs)
+        {
+            var suppressor = input.FirstOrDefault(b => HasTag(configs, b.ConfigId, SuppressorTag));
+            if (suppressor == null || !input.Any(b => HasTag(configs, b.ConfigId, SuppressibleTag))) return;
+            try
+            {
+                var role = GameWorld.Current?._AgentManager?.GetLeadingRole();
+                var buffs = role != null ? AgentTools.GetAgentComponent<BuffComponent>(role) : null;
+                if (buffs == null)
+                {
+                    Plugin.WarnOnce("Stats UI: the buffs of the leading role cannot be read; a suppressed debuff shows its losses.");
+                    return;
+                }
+                string name = BuffName(suppressor.ConfigId);
+                foreach (var b in input)
+                {
+                    if (!HasTag(configs, b.ConfigId, SuppressibleTag) || !ReadSuppressed(buffs, b.ConfigId)) continue;
+                    b.Suppressed = true;
+                    b.SuppressedBy = name;
+                    if (Plugin.Verbose.Value)
+                        Plugin.Log.LogDebug(FormattableString.Invariant($"Stats UI buffs: suppressed {b.ConfigId} by {suppressor.ConfigId}"));
+                }
+            }
+            catch (Exception e)
+            {
+                foreach (var b in input) { b.Suppressed = false; b.SuppressedBy = null; }
+                Plugin.WarnOnce("Stats UI: the suppression of a debuff cannot be read (" + e.Message + "); a suppressed debuff shows its losses.");
+            }
+        }
+
+        // A member that game 1.1.18599 added: in its own method, so that a game without it fails only this read.
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static bool ReadSuppressed(BuffComponent buffs, int configId) => buffs.IsBuffSuppressed(configId);
 
         // The number fields of Config_Effect that an effect row can use: Buff*, EF_Buff*, IntValue*, FloatValue*.
         private static PropertyInfo[] effectProps;

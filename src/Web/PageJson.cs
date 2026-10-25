@@ -19,27 +19,77 @@ namespace StatsUI
             public bool ExtendedTooltips;
             // The text of the game at the bottom of the stat tooltip.
             public bool StatTooltipGameText;
+            // The cures and the suppressors in the tooltip of a debuff badge. The page shows them only while
+            // ExtendedTooltips is on too.
+            public bool CuresInTooltips;
         }
 
         // The JSON of a part that has nothing to show yet.
         public const string EmptyStats = "[]";
         public const string EmptyBuffs = "[]";
         public const string EmptyWeight = "null";
+        public const string EmptyCures = "{}";
 
-        // The data of setData: the switches, the mod texts, and the JSON of each part (stats, buffs, weight).
-        public static string DataJson(Switches switches, string textsJson, string statsJson, string buffsJson, string weightJson)
+        // The data of setData: the switches, the mod texts, and the JSON of each part (stats, buffs, weight, cures).
+        public static string DataJson(Switches switches, string textsJson, string statsJson, string buffsJson, string weightJson,
+            string curesJson)
         {
-            var sb = new StringBuilder(256 + statsJson.Length + buffsJson.Length + textsJson.Length);
+            var sb = new StringBuilder(256 + statsJson.Length + buffsJson.Length + textsJson.Length + curesJson.Length);
             sb.Append("{\"switches\":{\"weightReadout\":").Append(Bool(switches.WeightReadout))
                 .Append(",\"timeStripes\":").Append(Bool(switches.TimeStripes))
                 .Append(",\"extendedTooltips\":").Append(Bool(switches.ExtendedTooltips))
                 .Append(",\"statTooltipGameText\":").Append(Bool(switches.StatTooltipGameText))
+                .Append(",\"curesInTooltips\":").Append(Bool(switches.CuresInTooltips))
                 .Append("},\"texts\":").Append(textsJson)
                 .Append(",\"stats\":").Append(statsJson)
                 .Append(",\"buffs\":").Append(buffsJson)
                 .Append(",\"weight\":").Append(weightJson)
+                .Append(",\"cures\":").Append(curesJson)
                 .Append('}');
             return sb.ToString();
+        }
+
+        // The cures part: for each debuff of the buff list with a cure or a suppressor, keyed by its config id, its
+        // two item lists in the order of CuresLogic.LinesOf, each item with its id, its name in the display language,
+        // its web icon (empty for none), and its item total. A debuff with no line gets no entry, and the part is
+        // empty with the switch off.
+        public static string CuresJson(bool on, IReadOnlyDictionary<int, CuresLogic.Lines> linesByDebuff,
+            IReadOnlyDictionary<int, (string Name, string Icon)> items)
+        {
+            if (!on || linesByDebuff == null) return EmptyCures;
+            var sb = new StringBuilder("{");
+            bool first = true;
+            foreach (var pair in linesByDebuff)
+            {
+                var lines = pair.Value;
+                if (lines == null || lines.Cures.Count + lines.Suppressors.Count == 0) continue;
+                if (!first) sb.Append(',');
+                first = false;
+                sb.AppendStr(pair.Key.ToString(CultureInfo.InvariantCulture)).Append(":{\"cures\":");
+                AppendItemLines(sb, lines.Cures, items);
+                sb.Append(",\"suppressors\":");
+                AppendItemLines(sb, lines.Suppressors, items);
+                sb.Append('}');
+            }
+            return sb.Append('}').ToString();
+        }
+
+        private static void AppendItemLines(StringBuilder sb, List<CuresLogic.Line> lines,
+            IReadOnlyDictionary<int, (string Name, string Icon)> items)
+        {
+            sb.Append('[');
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (i > 0) sb.Append(',');
+                int id = lines[i].ItemId;
+                var info = items != null && items.TryGetValue(id, out var found) ? found : (id.ToString(CultureInfo.InvariantCulture), "");
+                sb.Append("{\"id\":").Append(JsonText.Num(id))
+                    .Append(",\"name\":").AppendStr(info.Item1 ?? "")
+                    .Append(",\"icon\":").AppendStr(info.Item2 ?? "")
+                    .Append(",\"total\":").Append(JsonText.Num(lines[i].Total))
+                    .Append('}');
+            }
+            sb.Append(']');
         }
 
         // The mod texts of the display language by name.
@@ -154,9 +204,10 @@ namespace StatsUI
             script + ";window.__statsui.setData(" + json + "," + JsonText.Num(now) + ");";
 
         // The buffs part: each buff and debuff of the stat rows, in the order of the game's badges, with its row, its
-        // end time in game seconds (-1 for no end), its full time (-1 for none), and the text of the game.
+        // end time in game seconds (-1 for no end), its full time (-1 for none), the text of the game, and for a
+        // suppressed debuff the mod text suppressedBy filled with the name of the suppressing buff (else null).
         public static string BuffsJson(IReadOnlyList<BuffsLogic.Entry> entries, Func<BuffsLogic.Entry, string> desc,
-            Func<BuffsLogic.Entry, IReadOnlyList<(string Label, string Value, bool Bad)>> lines = null)
+            Func<BuffsLogic.Entry, IReadOnlyList<(string Label, string Value, bool Bad)>> lines = null, string suppressedBy = "")
         {
             var sb = new StringBuilder(160 * entries.Count + 2);
             sb.Append('[');
@@ -172,7 +223,10 @@ namespace StatsUI
                     .Append(",\"end\":").Append(JsonText.Num(e.EndTime))
                     .Append(",\"full\":").Append(Frac(e.FullTime))
                     .Append(",\"desc\":").AppendStr(desc(e) ?? "")
-                    .Append(",\"losses\":");
+                    .Append(",\"suppressed\":");
+                if (e.SuppressedBy != null) sb.AppendStr(SlShared.I18n.I18nTexts.Fill(suppressedBy ?? "", ("buff", e.SuppressedBy)));
+                else sb.Append("null");
+                sb.Append(",\"losses\":");
                 AppendLosses(sb, e.Losses);
                 sb.Append(",\"lines\":[");
                 var list = lines?.Invoke(e);

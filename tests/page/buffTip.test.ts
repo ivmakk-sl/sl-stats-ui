@@ -95,6 +95,17 @@ test('a debuff has its title in the debuff tone, and a layer count above one sho
   assert.equal(tip.lastElementChild.className, 'stui-tip-desc', 'the text of the game is last');
 });
 
+test('a mod text that C# did not send shows its name, as the C# code does', async (t) => {
+  const d = data();
+  d.texts = {};
+  const { core } = await hud(t, d);
+  const cold = badgesOf(core, 2)[0];
+
+  over(core, cold);
+
+  assert.equal(tipOf(cold).querySelector('.stui-tip-layers .stui-tip-label').textContent, 'layers');
+});
+
 test('a buff with no end shows no time line', async (t) => {
   const { core } = await hud(t);
   const enc = badgesOf(core, 3)[0];
@@ -191,4 +202,153 @@ test('the value of a penalty shows in the debuff tone, and another value keeps i
   const values = [...tipOf(vim).querySelectorAll('.stui-tip-line .stui-tip-value')];
   assert.deepEqual(values.map((v: Win) => v.classList.contains('stui-bad')), [false, true]);
   assert.match(css(core), /\.stui-tip-value\.stui-bad\s*\{[^}]*color:\s*var\(--stui-mark-bad\)/);
+});
+
+test('a suppressed debuff shows the suppression line in the gain tone under the time bar and no effect lines; another badge none', async (t) => {
+  const d = data();
+  d.buffs[1].suppressed = 'Suppressed by Analgesia';
+  d.buffs[0].lines = [{ label: 'Morale gain', value: '+50%', bad: false }];
+  const { core } = await hud(t, d);
+  const cold = badgesOf(core, 2)[0];
+  const vim = badgesOf(core, 1)[0];
+
+  over(core, cold);
+  const tip = tipOf(cold);
+  const line = tip.querySelector('.stui-tip-suppressed');
+  assert.ok(line, 'no suppression line');
+  assert.equal(line.textContent, 'Suppressed by Analgesia');
+  assert.equal(tip.querySelectorAll('.stui-tip-line').length, 0);
+  const order = [...tip.children].map((c: Win) => c.className.split(' ')[0]);
+  assert.ok(order.indexOf('stui-tip-bar') < order.indexOf('stui-tip-suppressed'), 'the line comes after the time bar: ' + order);
+  assert.ok(order.indexOf('stui-tip-suppressed') < order.indexOf('stui-tip-desc'), 'the line comes before the text of the game: ' + order);
+  assert.match(css(core), /\.stui-tip-suppressed\s*\{[^}]*color:\s*var\(--stui-mark-good\)/);
+  out(core, cold);
+
+  over(core, vim);
+  assert.equal(tipOf(vim).querySelector('.stui-tip-suppressed'), null);
+});
+
+const PAINKILLERS = { id: 2408, name: 'Painkillers', icon: '../../Res/Consumable/UI_Item_Icon_Cons_S_1600401101.png', total: 2 };
+const KANGFUXIN = { id: 2413, name: 'Kangfuxin Liquid', icon: '../../Res/Consumable/kangfuxin.png', total: 0 };
+const MORPHINE = { id: 2916, name: 'Morphine Injection', icon: '', total: 0 };
+
+function withCures() {
+  const d = data();
+  d.texts = { layers: 'Layers', curedBy: 'Cure with:', suppressedByList: 'Suppress with:' };
+  d.cures = { '700': { cures: [PAINKILLERS, KANGFUXIN], suppressors: [MORPHINE] } };
+  return d;
+}
+
+// The rows of the two blocks in order: a label as 'label:<text>', an item line as '<name>|<count>|<dim>'.
+function cureRows(tip: Win): string[] {
+  return [...tip.querySelectorAll('.stui-tip-cures > *')].map((r: Win) =>
+    r.classList.contains('stui-tip-cure-label')
+      ? 'label:' + r.textContent
+      : r.querySelector('.stui-tip-cure-name').textContent + '|'
+        + (r.querySelector('.stui-tip-cure-count')?.textContent ?? '') + '|'
+        + (r.classList.contains('stui-tip-cure-none') ? 'dim' : ''));
+}
+
+test('a debuff with cures shows "Cure with:" and "Suppress with:" with their item lines after the text of the game and the layer count', async (t) => {
+  const { core } = await hud(t, withCures());
+  const cold = badgesOf(core, 2)[0];
+
+  over(core, cold);
+
+  const tip = tipOf(cold);
+  assert.deepEqual(cureRows(tip), [
+    'label:Cure with:', 'Painkillers|x2|', 'Kangfuxin Liquid||dim', 'label:Suppress with:', 'Morphine Injection||dim',
+  ]);
+  const order = [...tip.children].map((c: Win) => c.className.split(' ')[0]);
+  assert.equal(order[order.length - 1], 'stui-tip-cures', 'the blocks come last: ' + order);
+  assert.ok(order.indexOf('stui-tip-lines') < order.indexOf('stui-tip-cures'), 'the blocks come after the layer count: ' + order);
+  const line = tip.querySelector('.stui-tip-cure');
+  assert.equal(line.querySelector('.stui-tip-cure-icon img').getAttribute('src'), PAINKILLERS.icon);
+  assert.equal(line.lastElementChild.className, 'stui-tip-cure-count', 'the count is at the right');
+});
+
+test('an item with no web icon keeps an empty icon place, so the lines stay aligned', async (t) => {
+  const { core } = await hud(t, withCures());
+  const cold = badgesOf(core, 2)[0];
+
+  over(core, cold);
+
+  const morphine = [...tipOf(cold).querySelectorAll('.stui-tip-cure')][2];
+  const icon = morphine.querySelector('.stui-tip-cure-icon');
+  assert.ok(icon, 'no icon place');
+  assert.equal(icon.querySelector('img'), null);
+});
+
+test('a label shows only with an item line after it', async (t) => {
+  const d = withCures();
+  d.cures['700'] = { cures: [], suppressors: [MORPHINE] };
+  const { core } = await hud(t, d);
+  const cold = badgesOf(core, 2)[0];
+
+  over(core, cold);
+
+  assert.deepEqual(cureRows(tipOf(cold)), ['label:Suppress with:', 'Morphine Injection||dim']);
+});
+
+test('a buff, a debuff with no entry, and the switch of the cures off show no block', async (t) => {
+  const d = withCures();
+  d.cures['2'] = { cures: [PAINKILLERS], suppressors: [] };
+  const { core } = await hud(t, d);
+  const vim = badgesOf(core, 1)[0];
+  const enc = badgesOf(core, 3)[0];
+
+  over(core, vim);
+  assert.equal(tipOf(vim).querySelector('.stui-tip-cures'), null, 'a buff shows a block');
+  out(core, vim);
+  over(core, enc);
+  assert.equal(tipOf(enc).querySelector('.stui-tip-cures'), null, 'a debuff with no entry shows a block');
+  out(core, enc);
+
+  const off = withCures();
+  off.switches.curesInTooltips = false;
+  const second = await hud(t, off);
+  const cold = badgesOf(second.core, 2)[0];
+  over(second.core, cold);
+  assert.ok(tipOf(cold), 'the extended tooltip still shows');
+  assert.equal(tipOf(cold).querySelector('.stui-tip-cures'), null, 'the switch off shows a block');
+});
+
+test('a suppressed debuff shows the blocks at the same place, and the suppression line under the time bar', async (t) => {
+  const d = withCures();
+  d.buffs[1].suppressed = 'Suppressed by Analgesia';
+  const { core } = await hud(t, d);
+  const cold = badgesOf(core, 2)[0];
+
+  over(core, cold);
+
+  const tip = tipOf(cold);
+  const order = [...tip.children].map((c: Win) => c.className.split(' ')[0]);
+  assert.ok(order.indexOf('stui-tip-bar') < order.indexOf('stui-tip-suppressed'), 'the line comes after the time bar: ' + order);
+  assert.equal(order[order.length - 1], 'stui-tip-cures', 'the blocks come last: ' + order);
+  assert.equal(cureRows(tip)[0], 'label:Cure with:');
+});
+
+test('a new cures push while the tooltip is open changes the count in it', async (t) => {
+  const { core, root } = await hud(t, withCures());
+  const cold = badgesOf(core, 2)[0];
+  over(core, cold);
+
+  const next = withCures();
+  next.cures['700'] = { cures: [{ ...KANGFUXIN, total: 1 }, { ...PAINKILLERS, total: 0 }], suppressors: [MORPHINE] };
+  setData(root, next, NOW);
+
+  const tip = tipOf(cold);
+  assert.ok(tip, 'the tooltip closed');
+  assert.deepEqual(cureRows(tip), [
+    'label:Cure with:', 'Kangfuxin Liquid|x1|', 'Painkillers||dim', 'label:Suppress with:', 'Morphine Injection||dim',
+  ]);
+});
+
+test('the label has the muted tone, a line with no item at home is dimmed, and the icon has a fixed place', async (t) => {
+  const { core } = await hud(t, withCures());
+  const text = css(core);
+
+  assert.match(text, /\.stui-tip-cure-label\s*\{[^}]*color:\s*var\(--stui-/);
+  assert.match(text, /\.stui-tip-cure-none\s*\{[^}]*opacity:/);
+  assert.match(text, /\.stui-tip-cure-icon\s*\{[^}]*width:/);
 });

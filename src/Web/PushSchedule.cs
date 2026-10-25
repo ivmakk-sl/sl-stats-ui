@@ -158,13 +158,13 @@ namespace StatsUI
     // BepInEx type here: the caller gives the read of a part.
     public sealed class DataParts
     {
-        public enum Part { Stats, Buffs, Weight, Texts }
+        public enum Part { Stats, Buffs, Weight, Texts, Cures }
 
-        private static readonly Part[] All = { Part.Stats, Part.Buffs, Part.Weight, Part.Texts };
+        private static readonly Part[] All = { Part.Stats, Part.Buffs, Part.Weight, Part.Texts, Part.Cures };
 
         private readonly string[] json = new string[All.Length];
         // Each part is marked until its first read.
-        private readonly bool[] marked = { true, true, true, true };
+        private readonly bool[] marked = { true, true, true, true, true };
 
         public void Mark(Part part) => marked[(int)part] = true;
 

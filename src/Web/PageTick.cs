@@ -4,6 +4,7 @@ using GameCore.HotUpdate;
 using GameCore.HotUpdate.Battle.Logic;
 using GameCore.HotUpdate.ReduxUI;
 using HarmonyLib;
+using SlShared.ItemPool;
 using UnityEngine;
 
 namespace StatsUI
@@ -57,7 +58,15 @@ namespace StatsUI
                 if (role.Pointer != lastRole)
                 {
                     lastRole = role.Pointer;
+                    CuresReader.Forget();
                     foreach (DataParts.Part part in Enum.GetValues(typeof(DataParts.Part))) parts.Mark(part);
+                }
+                // The item totals of the cures: a pool read after an item change, only while a debuff of the buff list
+                // needs them (CuresReader.NeedsPool), at most once for each frame.
+                if (CuresReader.NeedsPool)
+                {
+                    if (ItemPool.Store.IsDirty) ItemPool.Refresh();
+                    if (ItemPool.Store.Version != CuresReader.PoolVersion) parts.Mark(DataParts.Part.Cures);
                 }
                 // A push with no build this tick sends the last data again.
                 reason = "send again";
@@ -81,6 +90,7 @@ namespace StatsUI
                     TimeStripes = Plugin.TimeStripes.Value,
                     ExtendedTooltips = Plugin.ExtendedTooltips.Value,
                     StatTooltipGameText = Plugin.StatTooltipGameText.Value,
+                    CuresInTooltips = Plugin.CuresInTooltips.Value,
                 };
             var marked = new List<string>();
             foreach (DataParts.Part part in Enum.GetValues(typeof(DataParts.Part)))
@@ -91,7 +101,8 @@ namespace StatsUI
                 json[(int)DataParts.Part.Texts],
                 json[(int)DataParts.Part.Stats],
                 json[(int)DataParts.Part.Buffs],
-                json[(int)DataParts.Part.Weight]);
+                json[(int)DataParts.Part.Weight],
+                json[(int)DataParts.Part.Cures]);
         }
 
         private static string ReadPart(DataParts.Part part)
@@ -101,6 +112,7 @@ namespace StatsUI
                 case DataParts.Part.Texts: return PageJson.TextsJson(ModTexts.Current().ToDictionary());
                 case DataParts.Part.Stats: return StatsReader.Json();
                 case DataParts.Part.Buffs: return BuffsReader.Json();
+                case DataParts.Part.Cures: return CuresReader.Json();
                 default: return WeightReader.Json();
             }
         }
