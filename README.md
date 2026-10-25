@@ -36,7 +36,7 @@ The Well-Fed line uses the game's threshold. Carried weight is rounded up to one
 
 ## Requirements
 
-- Survival Log 1.1.18385 or later.
+- Survival Log 1.1.18599 or later.
 - The [BepInEx Pack for Survival Log](https://www.nexusmods.com/survivallog/mods/12), the BepInEx 6 (IL2CPP) build for the game.
 
 ## Install
@@ -55,7 +55,7 @@ To change mod settings, edit `BepInEx\config\com.ivmakk.survivallog.statsui.cfg`
 
 ## Troubleshooting
 
-Tested on Survival Log 1.1.18385 with BepInEx `6.0.0-be.788`.
+Tested on Survival Log 1.1.19611 (Steam build `26157732`) with BepInEx `6.0.0-be.788`.
 
 If a part is missing, check `BepInEx\LogOutput.log` for `Stats UI loaded.` and any warnings or errors. A warning names a part of the HUD that the mod could not find; the other parts keep working.
 

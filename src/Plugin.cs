@@ -9,7 +9,7 @@ using SlShared.ItemPool;
 
 namespace StatsUI
 {
-    [BepInPlugin(PluginGuid, "Stats UI", "1.0.0")]
+    [BepInPlugin(PluginGuid, "Stats UI", "1.1.0")]
     [BepInProcess("SurvivalLog.exe")]
     public sealed class Plugin : BasePlugin
     {
