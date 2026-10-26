@@ -51,7 +51,7 @@ Delete `StatsUI.dll` from the `BepInEx\plugins` folder.
 
 ## Configuration
 
-To change mod settings, edit `BepInEx\config\com.ivmakk.survivallog.statsui.cfg` while the game is closed (see [CONFIG.md](CONFIG.md) for every setting). Changes apply at the next game start.
+To change mod settings, edit `BepInEx\config\com.ivmakk.survivallog.statsui.cfg` (see [CONFIG.md](CONFIG.md) for every setting). Changes apply while you play: at once in an in-game config manager, or after an edit of the file at the next save load or when you open Settings.
 
 ## Troubleshooting
 

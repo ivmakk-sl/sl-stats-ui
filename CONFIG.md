@@ -1,6 +1,6 @@
 # Configuration
 
-Every setting lives in `BepInEx\config\com.ivmakk.survivallog.statsui.cfg`, written the first time you run the game with the mod installed. Edit it with any text editor while the game is closed. Changes apply at the next game start.
+Every setting lives in `BepInEx\config\com.ivmakk.survivallog.statsui.cfg`, written the first time you run the game with the mod installed. Edit it with any text editor. Changes apply while you play: at once in an in-game config manager, or after an edit of the file at the next save load or when you open Settings.
 
 Gain multipliers beside stat names, coming loss shading, the Well-Fed line, the text outline, and the heart icon on the Life bar are always on.
 

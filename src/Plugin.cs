@@ -9,7 +9,7 @@ using SlShared.ItemPool;
 
 namespace StatsUI
 {
-    [BepInPlugin(PluginGuid, "Stats UI", "1.1.0")]
+    [BepInPlugin(PluginGuid, "Stats UI", "1.1.1")]
     [BepInProcess("SurvivalLog.exe")]
     public sealed class Plugin : BasePlugin
     {
@@ -29,26 +29,32 @@ namespace StatsUI
             Log = base.Log;
             WeightReadout = Config.Bind(
                 "Display", "WeightReadout", true,
-                "Show the carried weight on the Inventory button of the HUD: the number and the weight bar. Applies at the next game start.");
+                "Show the carried weight on the Inventory button of the HUD: the number and the weight bar.");
             TimeStripes = Config.Bind(
                 "Display", "TimeStripes", true,
-                "Show a time stripe at the bottom of each buff and debuff badge that has an end time. Applies at the next game start.");
+                "Show a time stripe at the bottom of each buff and debuff badge that has an end time.");
             ExtendedTooltips = Config.Bind(
                 "Display", "ExtendedTooltips", true,
-                "Show the extended tooltips of the stat bars and the buff and debuff badges in place of the game's tooltips. Applies at the next game start.");
+                "Show the extended tooltips of the stat bars and the buff and debuff badges in place of the game's tooltips.");
             StatTooltipGameText = Config.Bind(
                 "Display", "StatTooltipGameText", true,
-                "Show the game's text about the stat at the bottom of the extended tooltip of a stat bar. Applies at the next game start.");
+                "Show the game's text about the stat at the bottom of the extended tooltip of a stat bar.");
             CuresInTooltips = Config.Bind(
                 "Display", "CuresInTooltips", true,
-                "Show the items that cure or suppress a debuff in the extended tooltip of its badge, with the count in the backpack and home storage. Needs ExtendedTooltips. Applies at the next game start.");
+                "Show the items that cure or suppress a debuff in the extended tooltip of its badge, with the count in the backpack and home storage. Needs ExtendedTooltips.");
             Verbose = Config.Bind(
                 "General", "Verbose", false,
                 "Log each send to the HUD, the values it sent, and the page-script detail at Debug level. Keep off in normal play.");
+            // The page tick reads each switch, so a change takes effect while the game runs. A hand edit of the file is
+            // read at the next save load or settings window open.
+            Config.SettingChanged += (_, e) => Debug($"config: {e.ChangedSetting.Definition.Key} = {e.ChangedSetting.BoxedValue}");
+            SlShared.ConfigFile.ConfigFileReload.Setup(Config.ConfigFilePath, Config.Reload, text => Log.LogWarning("Stats UI: " + text), Debug);
             ItemPool.Setup(Debug, () => Verbose.Value);
             Harmony = new Harmony(PluginGuid);
             var patches = new List<Type>(ItemPool.PatchTypes)
             {
+                typeof(SlShared.ConfigFile.ConfigFileReloadOnHudReady),
+                typeof(SlShared.ConfigFile.ConfigFileReloadOnSettings),
                 typeof(PageTick),
                 typeof(WeightOnUpdateOwnerBagWeight),
                 typeof(WeightOnUpdateHeavyLoadRatio),
